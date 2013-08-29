@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: AutoChimp
+Plugin Name: AutoChimpPlus
 Plugin URI: http://www.wandererllc.com/company/plugins/autochimp/
 Description: Keep MailChimp mailing lists in sync with your WordPress site.  AutoChimp supports many WordPress plugin profile extenders like WP-Members, Wishlist, BuddyPress, and Cimy User Extra fields. MailChimp also gives users the ability to create MailChimp mail campaigns from blog posts with the flexibility of sending different categories to different lists and interest groups.  You can use your user-defined templates as well.  NOTE:  <a href="http://www.wandererllc.com/company/2013/07/problems-with-autochimp-2-10/" target="_blank">AutoChimp 2.10 and up requires PHP 5.3.x or higher</a>. Please update (here is <a href="http://support.hostgator.com/articles/hosting-guide/hardware-software/php-5-3">an example</a> for HostGator users) if you are unable to activate the plugin.
-Author: Wanderer LLC Dev Team
-Version: 2.14
+Author: Wanderer LLC Dev Team & Xebre Consulting
+Version: 2.14.1
 */
 
 //
@@ -18,6 +18,8 @@ if ( !class_exists( 'MCAPI_13' ) )
 }
 require_once 'autochimp-helpers.php';	// General helper functions
 require_once 'autochimp-plugins.php';	// Plugin class framework
+
+require_once 'autochimp-extra.php'; // Extended autochimp campaign content
 
 // Set the time zone to UTC
 date_default_timezone_set('UTC');
@@ -809,7 +811,11 @@ function AC_CreateCampaignFromPost( $api, $postID, $listID, $interestGroupName, 
 			$segment_opts = array('match'=>'all', 'conditions'=>$conditions);
 		}
 	}
+        
+        $extra = ACP::getInstance()->getExtraContent($api, $categoryTemplateID);
 
+        $content = array_merge($content, $extra);
+        
 	// More info here:  http://apidocs.mailchimp.com/api/1.3/campaigncreate.func.php
 	$result = $api->campaignCreate( 'regular', $options, $content, $segment_opts );
 	if ($api->errorCode)
